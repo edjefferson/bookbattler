@@ -1,7 +1,11 @@
-// Thin wrapper around the ZXing UMD build (loaded globally via <script> in index.html)
-// for scanning EAN-13 barcodes (all ISBN barcodes are printed as EAN-13 "Bookland" codes).
+// Camera + barcode scanning, built directly on getUserMedia rather than ZXing's
+// own decodeFromConstraints()/attachStreamToVideo() helpers: those wait for the
+// video's 'playing' event, but that event can fire (and be missed) before the
+// listener is attached on fast cameras, hanging forever. Managing the stream
+// ourselves avoids that race entirely.
 
-let controls = null;
+let stream = null;
+let intervalId = null;
 
 export function isScannerAvailable() {
   return typeof window.ZXing !== 'undefined';
@@ -15,27 +19,46 @@ export async function startScanner(videoEl, onDetected, onError, onStart) {
 
   stopScanner();
 
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+    });
+  } catch (err) {
+    onError(err);
+    return;
+  }
+
+  videoEl.srcObject = stream;
+  try {
+    await videoEl.play();
+  } catch {
+    // Some browsers reject play() as interrupted even though playback proceeds; ignore.
+  }
+
+  if (onStart) onStart();
+
   const hints = new Map();
   hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.EAN_13]);
   const reader = new ZXing.BrowserMultiFormatReader(hints);
 
-  try {
-    controls = await reader.decodeFromConstraints(
-      { video: { facingMode: { ideal: 'environment' } } },
-      videoEl,
-      (result) => {
-        if (result) onDetected(result.getText());
-      },
-    );
-    if (onStart) onStart();
-  } catch (err) {
-    onError(err);
-  }
+  intervalId = setInterval(() => {
+    if (videoEl.readyState < videoEl.HAVE_CURRENT_DATA) return;
+    try {
+      const result = reader.decode(videoEl);
+      if (result) onDetected(result.getText());
+    } catch {
+      // No barcode in this frame — expected on most frames, ignore and keep polling.
+    }
+  }, 250);
 }
 
 export function stopScanner() {
-  if (controls && typeof controls.stop === 'function') {
-    controls.stop();
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
   }
-  controls = null;
+  if (stream) {
+    stream.getTracks().forEach((t) => t.stop());
+    stream = null;
+  }
 }
