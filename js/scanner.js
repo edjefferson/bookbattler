@@ -7,7 +7,7 @@ export function isScannerAvailable() {
   return typeof window.ZXing !== 'undefined';
 }
 
-export async function startScanner(videoEl, onDetected, onError) {
+export async function startScanner(videoEl, onDetected, onError, onStart) {
   if (!isScannerAvailable()) {
     onError(new Error('Barcode scanner library not loaded'));
     return;
@@ -27,6 +27,7 @@ export async function startScanner(videoEl, onDetected, onError) {
         if (result) onDetected(result.getText());
       },
     );
+    if (onStart) onStart();
   } catch (err) {
     onError(err);
   }

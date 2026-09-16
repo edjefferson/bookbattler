@@ -72,6 +72,9 @@ function startCameraFlow() {
     () => {
       el('scan-status').textContent = 'Camera unavailable — enter the ISBN manually below.';
     },
+    () => {
+      el('scan-status').textContent = 'Camera on — line the barcode up inside the box.';
+    },
   );
 }
 
