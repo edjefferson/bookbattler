@@ -1,4 +1,4 @@
-# ISBN Battler
+# Book Battler
 
 Scan two books' barcodes with your phone camera, turn them into trading cards
 using data from [Open Library](https://openlibrary.org), and watch them fight.
