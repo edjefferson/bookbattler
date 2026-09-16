@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>ISBN Battler</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <h1>ISBN Battler</h1>
+      <p class="tagline">Scan two books. Watch them fight.</p>
+    </header>
+
+    <main id="main">
+
+      <!-- SCAN SCREEN -->
+      <section id="screen-scan" class="screen active">
+        <h2 id="scan-heading">Player 1: scan your book's barcode</h2>
+
+        <div class="scanner-box">
+          <video id="video" playsinline autoplay muted></video>
+          <div class="scan-reticle"></div>
+        </div>
+
+        <p id="scan-status" class="status-text">Point your camera at the ISBN barcode on the back of the book.</p>
+
+        <div class="manual-entry">
+          <input id="manual-isbn" type="text" inputmode="numeric" placeholder="or type the ISBN here" />
+          <button id="manual-submit" class="btn btn-secondary">Look up</button>
+        </div>
+
+        <button id="camera-start-btn" class="btn btn-primary">Enable camera</button>
+      </section>
+
+      <!-- CARD REVEAL SCREEN -->
+      <section id="screen-reveal" class="screen">
+        <h2 id="reveal-heading">Your card</h2>
+        <div id="reveal-card-slot" class="card-slot"></div>
+        <button id="reveal-continue-btn" class="btn btn-primary">Continue</button>
+      </section>
+
+      <!-- BATTLE READY SCREEN -->
+      <section id="screen-ready" class="screen">
+        <h2>Ready to battle!</h2>
+        <div class="matchup">
+          <div id="ready-card-1" class="card-slot small"></div>
+          <div class="vs">VS</div>
+          <div id="ready-card-2" class="card-slot small"></div>
+        </div>
+        <button id="battle-start-btn" class="btn btn-primary btn-battle">Fight!</button>
+        <button id="restart-btn" class="btn btn-secondary">Start over</button>
+      </section>
+
+      <!-- BATTLE SCREEN -->
+      <section id="screen-battle" class="screen">
+        <div class="battle-arena">
+          <div class="fighter" id="fighter-1">
+            <div id="battle-card-1" class="card-slot small"></div>
+            <div class="hp-bar"><div id="hp-fill-1" class="hp-fill"></div></div>
+          </div>
+          <div class="fighter" id="fighter-2">
+            <div id="battle-card-2" class="card-slot small"></div>
+            <div class="hp-bar"><div id="hp-fill-2" class="hp-fill"></div></div>
+          </div>
+        </div>
+        <div id="battle-log" class="battle-log"></div>
+        <button id="log-next-btn" class="btn btn-primary">Next</button>
+      </section>
+
+      <!-- RESULT SCREEN -->
+      <section id="screen-result" class="screen">
+        <h2 id="result-heading">We have a winner!</h2>
+        <div id="result-card-slot" class="card-slot"></div>
+        <button id="play-again-btn" class="btn btn-primary">Play again</button>
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      <p>Book data from <a href="https://openlibrary.org" target="_blank" rel="noopener">Open Library</a>.</p>
+    </footer>
+  </div>
+
+  <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

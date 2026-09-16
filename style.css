@@ -1,0 +1,344 @@
+:root {
+  --bg: #0b0e1a;
+  --panel: #141830;
+  --panel-2: #1c2140;
+  --ink: #f1f3fb;
+  --ink-dim: #9aa0c3;
+  --accent: #ffcc4d;
+  --accent-2: #6ee7ff;
+  --danger: #ff5d7a;
+  --ok: #57e389;
+  --radius: 18px;
+  --shadow: 0 20px 50px rgba(0,0,0,0.45);
+
+  --type-fiction: #ff5d7a;
+  --type-fantasy: #a78bfa;
+  --type-science: #6ee7ff;
+  --type-history: #ffcc4d;
+  --type-mystery: #7c8cff;
+  --type-romance: #ff8ec7;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 20% -10%, #22285a 0%, transparent 45%),
+    radial-gradient(circle at 110% 10%, #2a1f4d 0%, transparent 40%),
+    var(--bg);
+  color: var(--ink);
+  font-family: 'Avenir Next', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 20px 16px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tagline {
+  margin: 4px 0 0;
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+}
+
+#main { flex: 1; display: flex; flex-direction: column; }
+
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: fade-in 0.25s ease;
+}
+.screen.active { display: flex; }
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+/* Scanner */
+
+.scanner-box {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 4 / 3;
+  background: #000;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid #2a2f52;
+}
+
+#video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scan-reticle {
+  position: absolute;
+  inset: 30% 8%;
+  border: 2px solid var(--accent-2);
+  border-radius: 10px;
+  box-shadow: 0 0 0 999px rgba(0,0,0,0.35);
+  pointer-events: none;
+}
+
+.status-text {
+  text-align: center;
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+.manual-entry {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.manual-entry input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #2a2f52;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.manual-entry input:focus {
+  outline: 2px solid var(--accent-2);
+}
+
+/* Buttons */
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent), #ffb020);
+  color: #241705;
+}
+.btn-primary:hover { filter: brightness(1.08); }
+
+.btn-secondary {
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 1px solid #2a2f52;
+}
+
+.btn-battle {
+  font-size: 1.2rem;
+  padding: 14px 36px;
+  box-shadow: 0 0 30px rgba(255, 204, 77, 0.35);
+}
+
+/* Card */
+
+.card-slot { display: flex; justify-content: center; width: 100%; }
+
+.card {
+  width: 280px;
+  border-radius: 20px;
+  padding: 14px;
+  background: linear-gradient(160deg, var(--panel-2), var(--panel));
+  border: 2px solid var(--card-color, var(--accent));
+  box-shadow: var(--shadow), 0 0 24px color-mix(in srgb, var(--card-color, var(--accent)) 40%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-slot.small .card {
+  width: 150px;
+  padding: 10px;
+  gap: 6px;
+}
+
+.card-type-badge {
+  align-self: flex-start;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--card-color, var(--accent));
+  color: #10091f;
+}
+
+.card-cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #05070f;
+  border: 1px solid #2a2f52;
+}
+
+.card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.card-slot.small .card-title {
+  font-size: 0.72rem;
+}
+
+.card-author {
+  font-size: 0.75rem;
+  color: var(--ink-dim);
+  margin: -6px 0 0;
+}
+
+.card-slot.small .card-author {
+  font-size: 0.6rem;
+  margin-top: -4px;
+}
+
+.card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+}
+
+.card-slot.small .card-stats {
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 6px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--ink-dim);
+}
+
+.card-slot.small .stat { font-size: 0.58rem; }
+
+.stat b { color: var(--ink); font-weight: 700; }
+
+/* Matchup / battle */
+
+.matchup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: center;
+  width: 100%;
+}
+
+.vs {
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.battle-arena {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  width: 100%;
+}
+
+.fighter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 150px;
+}
+
+.hp-bar {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: #05070f;
+  border: 1px solid #2a2f52;
+  overflow: hidden;
+}
+
+.hp-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--ok), #8ef5b0);
+  transition: width 0.5s ease;
+}
+
+.hp-fill.low { background: linear-gradient(90deg, var(--danger), #ff8ca0); }
+
+.battle-log {
+  width: 100%;
+  max-width: 400px;
+  height: 160px;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid #2a2f52;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.battle-log p {
+  margin: 0 0 6px;
+}
+
+.battle-log p:last-child { margin-bottom: 0; color: var(--accent-2); }
+
+.app-footer {
+  text-align: center;
+  margin-top: 24px;
+  color: var(--ink-dim);
+  font-size: 0.75rem;
+}
+
+.app-footer a { color: var(--accent-2); }
+
+@media (max-width: 360px) {
+  .card { width: 100%; max-width: 260px; }
+}
