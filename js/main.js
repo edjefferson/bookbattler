@@ -1,4 +1,4 @@
-import { lookupISBN } from './openlibrary.js';
+import { lookupISBN, searchByTitle } from './openlibrary.js';
 import { buildCard } from './card.js';
 import { simulateBattle } from './battle.js';
 import { startScanner, stopScanner, isScannerAvailable } from './scanner.js';
@@ -22,14 +22,17 @@ function renderCard(card) {
   badge.textContent = card.type.label;
   wrap.appendChild(badge);
 
-  const img = document.createElement('img');
-  img.className = 'card-cover';
-  img.alt = card.title;
-  img.src = card.coverUrl || `https://covers.openlibrary.org/b/isbn/${card.isbn}-L.jpg?default=false`;
-  img.onerror = () => {
-    img.style.display = 'none';
-  };
-  wrap.appendChild(img);
+  const coverSrc = card.coverUrl || (card.isbn ? `https://covers.openlibrary.org/b/isbn/${card.isbn}-L.jpg?default=false` : null);
+  if (coverSrc) {
+    const img = document.createElement('img');
+    img.className = 'card-cover';
+    img.alt = card.title;
+    img.src = coverSrc;
+    img.onerror = () => {
+      img.style.display = 'none';
+    };
+    wrap.appendChild(img);
+  }
 
   const title = document.createElement('p');
   title.className = 'card-title';
@@ -78,19 +81,28 @@ function startCameraFlow() {
   );
 }
 
+function revealCard(book) {
+  const card = buildCard(book);
+  state.players[state.currentPlayer] = card;
+  el('reveal-heading').textContent = `Player ${state.currentPlayer + 1}'s card`;
+  mountCard('reveal-card-slot', card);
+  clearSearchResults();
+  showScreen('screen-reveal');
+}
+
 async function handleISBN(rawIsbn) {
   stopScanner();
+  const btn = el('manual-submit');
+  btn.disabled = true;
   el('scan-status').textContent = 'Looking up book…';
   try {
     const book = await lookupISBN(rawIsbn);
-    const card = buildCard(book);
-    state.players[state.currentPlayer] = card;
-    el('reveal-heading').textContent = `Player ${state.currentPlayer + 1}'s card`;
-    mountCard('reveal-card-slot', card);
-    showScreen('screen-reveal');
+    revealCard(book);
   } catch (err) {
     el('scan-status').textContent = `Couldn't find that book (${err.message}). Try again or enter manually.`;
     startCameraFlow();
+  } finally {
+    btn.disabled = false;
   }
 }
 
@@ -107,10 +119,82 @@ el('manual-isbn').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') el('manual-submit').click();
 });
 
+// --- Title search ---
+
+function clearSearchResults() {
+  el('title-search-results').innerHTML = '';
+}
+
+function renderSearchResult(book) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'search-result';
+
+  if (book.coverUrl) {
+    const img = document.createElement('img');
+    img.src = book.coverUrl;
+    img.alt = '';
+    img.onerror = () => {
+      img.style.display = 'none';
+    };
+    btn.appendChild(img);
+  }
+
+  const info = document.createElement('div');
+  info.className = 'result-info';
+  const title = document.createElement('div');
+  title.className = 'result-title';
+  title.textContent = book.title;
+  info.appendChild(title);
+  const meta = document.createElement('div');
+  meta.className = 'result-meta';
+  meta.textContent = [book.authors.join(', '), book.publishDate].filter(Boolean).join(' · ');
+  info.appendChild(meta);
+  btn.appendChild(info);
+
+  btn.addEventListener('click', () => {
+    stopScanner();
+    revealCard(book);
+  });
+
+  return btn;
+}
+
+async function handleTitleSearch(query) {
+  const btn = el('title-search-submit');
+  btn.disabled = true;
+  el('scan-status').textContent = 'Searching…';
+  try {
+    const results = await searchByTitle(query);
+    clearSearchResults();
+    if (!results.length) {
+      el('scan-status').textContent = `No books found for "${query}".`;
+    } else {
+      el('scan-status').textContent = 'Pick a book below.';
+      const list = el('title-search-results');
+      for (const book of results) list.appendChild(renderSearchResult(book));
+    }
+  } catch (err) {
+    el('scan-status').textContent = `Search failed (${err.message}).`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+el('title-search-submit').addEventListener('click', () => {
+  const val = el('title-search').value.trim();
+  if (val) handleTitleSearch(val);
+});
+el('title-search').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') el('title-search-submit').click();
+});
+
 el('reveal-continue-btn').addEventListener('click', () => {
   if (state.currentPlayer === 0) {
     state.currentPlayer = 1;
     el('manual-isbn').value = '';
+    el('title-search').value = '';
+    clearSearchResults();
     el('scan-status').textContent = "Point your camera at Player 2's book.";
     showScreen('screen-scan');
     startCameraFlow();
@@ -130,6 +214,8 @@ function resetGame() {
   state.battle = null;
   state.logIndex = 0;
   el('manual-isbn').value = '';
+  el('title-search').value = '';
+  clearSearchResults();
   el('scan-status').textContent = 'Point your camera at the ISBN barcode on the back of the book.';
   showScreen('screen-scan');
   startCameraFlow();

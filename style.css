@@ -175,6 +175,51 @@ h2 {
   box-shadow: 0 0 30px rgba(255, 204, 77, 0.35);
 }
 
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Search results */
+
+.search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid #2a2f52;
+  background: var(--panel);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.search-result:hover { border-color: var(--accent-2); }
+
+.search-result img {
+  width: 34px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #05070f;
+  flex-shrink: 0;
+}
+
+.search-result .result-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.search-result .result-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-result .result-meta { color: var(--ink-dim); font-size: 0.75rem; }
+
 /* Card */
 
 .card-slot { display: flex; justify-content: center; width: 100%; }
